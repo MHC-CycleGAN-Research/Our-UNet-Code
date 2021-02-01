@@ -4,9 +4,13 @@ import numpy as np
 import tensorflow as tf
 import random
 import sys
-sys.path.remove('/opt/ros/kinetic/lib/python2.7/dist-packages') # in order to import cv2 under python3
+import string
+syspath = sys.path
+print(syspath)
+input()
+if syspath.find('/opt/ros/') != -1:
+    sys.path.remove('/opt/ros/kinetic/lib/python2.7/dist-packages') # in order to import cv2 under python3
 import cv2
-sys.path.append('/opt/ros/kinetic/lib/python2.7/dist-packages') # in order to import cv2 under python3
 from PIL import Image
 from pathlib import Path
 import os
