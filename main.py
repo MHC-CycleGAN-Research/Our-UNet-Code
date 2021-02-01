@@ -5,11 +5,11 @@ import tensorflow as tf
 import random
 import sys
 import string
+rospath = '/opt/ros/kinetic/lib/python2.7/dist-packages'
 syspath = sys.path
-print(syspath)
-input()
-if syspath.find('/opt/ros/') != -1:
-    sys.path.remove('/opt/ros/kinetic/lib/python2.7/dist-packages') # in order to import cv2 under python3
+if rospath in syspath:
+    sys.path.remove(rospath) # in order to import cv2 under python3
+    print('ROS path temporarily removed.')
 import cv2
 from PIL import Image
 from pathlib import Path
