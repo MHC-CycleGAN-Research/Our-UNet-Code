@@ -21,10 +21,10 @@ mychoice = input("Choose 1 for Membrane example, 2 for Endoscopic images.")
 myaction = input("Choose 1 for Training, 2 for Testing.")
 
 
-if mychoice == 1:
-    if myaction == 1:
+if mychoice == '1':
+    if myaction == '1':
         print("Need to pull stuff from trainUnet.ipynb")
-    elif myaction == 2:
+    elif myaction == '2':
         data_gen_args = dict(rotation_range=0.2,
                         width_shift_range=0.05,
                         height_shift_range=0.05,
@@ -44,12 +44,12 @@ if mychoice == 1:
     else:
         print("Invalid action. Goodbye!")
 
-elif mychoice == 2:
+elif mychoice == '2':
 
-    if myaction == 1:
+    if myaction == '1':
         print("Need to pull stuff from trainUnet.ipynb")
 
-    elif myaction == 2:
+    elif myaction == '2':
         #os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
         # Takes as input path to image file and returns 
@@ -96,6 +96,6 @@ elif mychoice == 2:
 
     else:
         print("Invalid action. Goodbye!")
-        
+
 else:
     print("Invalid option. Goodbye!")
