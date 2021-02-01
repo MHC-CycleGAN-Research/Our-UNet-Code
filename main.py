@@ -39,7 +39,7 @@ if mychoice == '1':
         print('\n\nDone training!')
         myaction = input("\n\nChoose 1 for Exit, 2 for Testing.")
 
-    elif myaction == '2':
+    if myaction == '2':
         testGene = testGenerator("./data/membrane/test")
         model = unet()
         model.load_weights("unet_membrane.hdf5")
@@ -92,7 +92,7 @@ elif mychoice == '2':
         print('\n\nDone training!')
         myaction = input("\n\nChoose 1 for Exit, 2 for Testing.")
 
-    elif myaction == '2':        
+    if myaction == '2':        
         test_X, test_y = get_ds("./data/endoscopic/test/", "./data/endoscopic/test/")
         model = unet(pretrained_weights = None, input_size = (256,256,3))
         model.load_weights("unet_endoscopic.hdf5")      
