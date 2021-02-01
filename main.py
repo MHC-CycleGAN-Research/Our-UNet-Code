@@ -82,6 +82,7 @@ elif mychoice == '2':
         
         errmsg1 = 'mismatched dimension: ' + str(len(img_paths))+' images' + str(len(lbl_paths))+' labels'
         errmsg2 = 'no files detected'
+
         assert len(img_paths) == len(lbl_paths), errmsg1
         assert len(img_paths) > 0, errmsg2
 
@@ -97,12 +98,12 @@ elif mychoice == '2':
         myaction = input("\n\nChoose 1 for Exit, 2 for Testing.")
 
     if myaction == '2':        
-        test_X, test_y = get_ds("./data/endoscopic/test/", "./data/endoscopic/test/")
+        test_X, test_y = get_ds("./data/endoscopic/test/image/", "./data/endoscopic/test/label/")
         model = unet(pretrained_weights = None, input_size = (256,256,3))
         model.load_weights("unet_endoscopic.hdf5")      
         results = model.predict(test_X)
 
-        saveResult("./data/endoscopic/test",results)
+        saveResult("./data/endoscopic/test/predict",results)
 
     else:
         print("Invalid action. Goodbye!")
