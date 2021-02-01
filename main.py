@@ -6,9 +6,9 @@ import random
 import sys
 import string
 rospath = '/opt/ros/kinetic/lib/python2.7/dist-packages'
-print(sys.path)
+print(str(sys.path))
 input()
-if rospath in str(sys.path):
+if str(sys.path).find(rospath) != -1:
     sys.path.remove(rospath) # in order to import cv2 under python3
     print('ROS path temporarily removed.')
 import cv2
