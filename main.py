@@ -85,7 +85,7 @@ elif mychoice == '2':
 
     if myaction == '1':
         train_X, train_y = get_ds("./data/endoscopic/train/image/", "./data/endoscopic/train/label/")
-        model = unet()
+        model = unet(pretrained_weights = None, input_size = (256,256,3))
         model_checkpoint = ModelCheckpoint('unet_endoscopic.hdf5', monitor='loss',verbose=1, save_best_only=True)
         model.fit(train_X,train_y,steps_per_epoch=300,epochs=1,callbacks=[model_checkpoint])
 
@@ -94,7 +94,7 @@ elif mychoice == '2':
 
     elif myaction == '2':        
         test_X, test_y = get_ds("./data/endoscopic/test/", "./data/endoscopic/test/")
-        model = unet()
+        model = unet(pretrained_weights = None, input_size = (256,256,3))
         model.load_weights("unet_endoscopic.hdf5")      
         results = model.predict(testX)
 
