@@ -80,7 +80,11 @@ elif mychoice == '2':
         for i, lbl_path in enumerate(lbl_paths):
             labels[i] = np.array(Image.open(lbl_path).convert('L').resize((256,256),Image.ANTIALIAS)).reshape((256,256,1))
         
-        input(str(len(img_paths))+'   '+str(len(lbl_paths)))
+        errmsg1 = 'mismatched dimension: ' + str(len(img_paths))+' images' + str(len(lbl_paths))+' labels'
+        errmsg2 = 'no files detected'
+        assert len(img_paths) == len(lbl_paths), errmsg1
+        assert len(img_paths) > 0, errmsg2
+
         return images,labels
 
     if myaction == '1':
