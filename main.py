@@ -52,10 +52,7 @@ if mychoice == '1':
 elif mychoice == '2':
     #os.environ["CUDA_VISIBLE_DEVICES"] = "0"
     
-    # Takes as input path to image file and returns 
-    # resized 3 channel RGB image of as numpy array of size (256, 256, 3)
-    def getPic(img_path):
-        return np.array(Image.open(img_path).convert('RGB').resize((256,256),Image.ANTIALIAS))
+    
 
     # Return the images and corresponding labels as numpy arrays
     def get_ds(data_path, label_path):
@@ -63,24 +60,27 @@ elif mychoice == '2':
         lbl_paths = list()
         
         # Recursively find all the image files from the path data_path
-        for img_path in glob.glob(data_path+"/**/*"):
+        for img_path in glob.glob(data_path+"/*"):
             img_paths.append(img_path)
         
         # Recursively find all the image files from the path label_path
-        for lbl_path in glob.glob(label_path+"/**/*"):
+        for lbl_path in glob.glob(label_path+"/*"):
             lbl_paths.append(lbl_path)
             
         images = np.zeros((len(img_paths),256,256,3))
-        labels = np.zeros((len(lbl_paths),256,256,3))
+        labels = np.zeros((len(lbl_paths),256,256,1))
           
         # Read and resize the images
         # Get the encoded labels
         for i, img_path in enumerate(img_paths):
-            images[i] = getPic(img_path)
+            # Takes as input path to image file and returns 
+            # resized 3 channel RGB image of as numpy array of size (256, 256, 3)
+            images[i] = np.array(Image.open(img_path).convert('RGB').resize((256,256),Image.ANTIALIAS))
                   
         for i, lbl_path in enumerate(lbl_paths):
-            labels[i] = getPic(lbl_path)
-            
+            labels[i] = np.array(Image.open(lbl_path).convert('L').resize((256,256),Image.ANTIALIAS)).reshape((256,256,1))
+        
+        input(str(len(img_paths))+'   '+str(len(lbl_paths)))
         return images,labels
 
     if myaction == '1':
@@ -96,7 +96,7 @@ elif mychoice == '2':
         test_X, test_y = get_ds("./data/endoscopic/test/", "./data/endoscopic/test/")
         model = unet(pretrained_weights = None, input_size = (256,256,3))
         model.load_weights("unet_endoscopic.hdf5")      
-        results = model.predict(testX)
+        results = model.predict(test_X)
 
         saveResult("./data/endoscopic/test",results)
 
