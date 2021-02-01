@@ -34,7 +34,7 @@ if mychoice == '1':
 
         model = unet()
         model_checkpoint = ModelCheckpoint('unet_membrane.hdf5', monitor='loss',verbose=1, save_best_only=True)
-        model.fit_generator(myGene,steps_per_epoch=300,epochs=1,callbacks=[model_checkpoint])
+        model.fit_generator(myGene,steps_per_epoch=2000,epochs=5,callbacks=[model_checkpoint])
 
         print('\n\nDone training!')
         myaction = input("\n\nChoose 1 for Exit, 2 for Testing.")
@@ -87,7 +87,7 @@ elif mychoice == '2':
         train_X, train_y = get_ds("./data/endoscopic/train/image/", "./data/endoscopic/train/label/")
         model = unet(pretrained_weights = None, input_size = (256,256,3))
         model_checkpoint = ModelCheckpoint('unet_endoscopic.hdf5', monitor='loss',verbose=1, save_best_only=True)
-        model.fit(train_X,train_y,steps_per_epoch=300,epochs=1,callbacks=[model_checkpoint])
+        model.fit(train_X,train_y,steps_per_epoch=2000,epochs=5,callbacks=[model_checkpoint])
 
         print('\n\nDone training!')
         myaction = input("\n\nChoose 1 for Exit, 2 for Testing.")
