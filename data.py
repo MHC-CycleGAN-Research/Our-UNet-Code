@@ -1,124 +1,94 @@
-from __future__ import print_function
-from keras.preprocessing.image import ImageDataGenerator
-import numpy as np 
-import os
+# -*- coding:utf-8 -*-
+
+from keras.preprocessing.image import img_to_array, load_img
+import numpy as np
 import glob
-import skimage.io as io
-import skimage.transform as trans
-
-Sky = [128,128,128]
-Building = [128,0,0]
-Pole = [192,192,128]
-Road = [128,64,128]
-Pavement = [60,40,222]
-Tree = [128,128,0]
-SignSymbol = [192,128,128]
-Fence = [64,64,128]
-Car = [64,0,128]
-Pedestrian = [64,64,0]
-Bicyclist = [0,128,192]
-Unlabelled = [0,0,0]
-
-COLOR_DICT = np.array([Sky, Building, Pole, Road, Pavement,
-                          Tree, SignSymbol, Fence, Car, Pedestrian, Bicyclist, Unlabelled])
 
 
-def adjustData(img,mask,flag_multi_class,num_class):
-    if(flag_multi_class):
-        img = img / 255
-        mask = mask[:,:,:,0] if(len(mask.shape) == 4) else mask[:,:,0]
-        new_mask = np.zeros(mask.shape + (num_class,))
-        for i in range(num_class):
-            #for one pixel in the image, find the class in mask and convert it into one-hot vector
-            #index = np.where(mask == i)
-            #index_mask = (index[0],index[1],index[2],np.zeros(len(index[0]),dtype = np.int64) + i) if (len(mask.shape) == 4) else (index[0],index[1],np.zeros(len(index[0]),dtype = np.int64) + i)
-            #new_mask[index_mask] = 1
-            new_mask[mask == i,i] = 1
-        new_mask = np.reshape(new_mask,(new_mask.shape[0],new_mask.shape[1]*new_mask.shape[2],new_mask.shape[3])) if flag_multi_class else np.reshape(new_mask,(new_mask.shape[0]*new_mask.shape[1],new_mask.shape[2]))
-        mask = new_mask
-    elif(np.max(img) > 1):
-        img = img / 255
-        mask = mask /255
-        mask[mask > 0.5] = 1
-        mask[mask <= 0.5] = 0
-    return (img,mask)
+class dataProcess(object):
+    def __init__(self, out_rows, out_cols, data_path="./data/train/image", label_path="./data/train/label",
+                 test_path="./data/test/image", npy_path="./npydata", img_type="jpg"):
+        self.out_rows = out_rows
+        self.out_cols = out_cols
+        self.data_path = data_path
+        self.label_path = label_path
+        self.img_type = img_type
+        self.test_path = test_path
+        self.npy_path = npy_path
 
+    def create_train_data(self):
+        i = 0
+        print('Creating training images...')
+        imgs = glob.glob(self.data_path+"/*."+self.img_type)
+        imgdatas = np.ndarray((len(imgs), self.out_rows, self.out_cols, 3), dtype=np.uint8)
+        imglabels = np.ndarray((len(imgs), self.out_rows, self.out_cols, 1), dtype=np.uint8)
 
+        for x in range(len(imgs)):
+            imgpath = imgs[x]
+            pic_name = imgpath.split('/')[-1]
+            labelpath = self.label_path + '/' + pic_name
+            img = load_img(imgpath, grayscale=False, target_size=[512, 512])
+            label = load_img(labelpath, grayscale=True, target_size=[512, 512])
+            img = img_to_array(img)
+            label = img_to_array(label)
+            imgdatas[i] = img
+            imglabels[i] = label
+            if i % 100 == 0:
+                print('Done: {0}/{1} images'.format(i, len(imgs)))
+            i += 1
 
-def trainGenerator(batch_size,train_path,image_folder,mask_folder,aug_dict,image_color_mode = "grayscale",
-                    mask_color_mode = "grayscale",image_save_prefix  = "image",mask_save_prefix  = "mask",
-                    flag_multi_class = False,num_class = 2,save_to_dir = None,target_size = (256,256),seed = 1):
-    '''
-    can generate image and mask at the same time
-    use the same seed for image_datagen and mask_datagen to ensure the transformation for image and mask is the same
-    if you want to visualize the results of generator, set save_to_dir = "your path"
-    '''
-    image_datagen = ImageDataGenerator(**aug_dict)
-    mask_datagen = ImageDataGenerator(**aug_dict)
-    image_generator = image_datagen.flow_from_directory(
-        train_path,
-        classes = [image_folder],
-        class_mode = None,
-        color_mode = image_color_mode,
-        target_size = target_size,
-        batch_size = batch_size,
-        save_to_dir = save_to_dir,
-        save_prefix  = image_save_prefix,
-        seed = seed)
-    mask_generator = mask_datagen.flow_from_directory(
-        train_path,
-        classes = [mask_folder],
-        class_mode = None,
-        color_mode = mask_color_mode,
-        target_size = target_size,
-        batch_size = batch_size,
-        save_to_dir = save_to_dir,
-        save_prefix  = mask_save_prefix,
-        seed = seed)
-    train_generator = zip(image_generator, mask_generator)
-    for (img,mask) in train_generator:
-        img,mask = adjustData(img,mask,flag_multi_class,num_class)
-        yield (img,mask)
+        print('loading done')
+        np.save(self.npy_path + '/imgs_train.npy', imgdatas)
+        np.save(self.npy_path + '/imgs_mask_train.npy', imglabels)
+        print('Saving to .npy files done.')
 
+    def create_test_data(self):
+        i = 0
+        print('Creating test images...')
+        imgs = glob.glob(self.test_path + "/*." + self.img_type)
+        imgdatas = np.ndarray((len(imgs), self.out_rows, self.out_cols, 3), dtype=np.uint8)
+        testpathlist = []
 
+        for imgname in imgs:
+            testpath = imgname
+            testpathlist.append(testpath)
+            img = load_img(testpath, grayscale=False, target_size=[512, 512])
+            img = img_to_array(img)
+            imgdatas[i] = img
+            i += 1
 
-def testGenerator(test_path,num_image = 30,target_size = (256,256),flag_multi_class = False,as_gray = True):
-    for i in range(num_image):
-        img = io.imread(os.path.join(test_path,"%d.png"%i),as_gray = as_gray)
-        img = img / 255
-        img = trans.resize(img,target_size)
-        img = np.reshape(img,img.shape+(1,)) if (not flag_multi_class) else img
-        img = np.reshape(img,(1,)+img.shape)
-        yield img
+        txtname = './results/pic.txt'
+        with open(txtname, 'w') as f:
+            for i in range(len(testpathlist)):
+                f.writelines(testpathlist[i] + '\n')
+        print('loading done')
+        np.save(self.npy_path + '/imgs_test.npy', imgdatas)
+        print('Saving to imgs_test.npy files done.')
 
+    def load_train_data(self):
+        print('load train images...')
+        imgs_train = np.load(self.npy_path + "/imgs_train.npy")
+        imgs_mask_train = np.load(self.npy_path + "/imgs_mask_train.npy")
+        imgs_train = imgs_train.astype('float32')
+        imgs_mask_train = imgs_mask_train.astype('float32')
+        imgs_train /= 255
+        imgs_mask_train /= 255
+        imgs_mask_train[imgs_mask_train > 0.5] = 1  # 白
+        imgs_mask_train[imgs_mask_train <= 0.5] = 0  # 黑
+        return imgs_train, imgs_mask_train
 
-def geneTrainNpy(image_path,mask_path,flag_multi_class = False,num_class = 2,image_prefix = "image",mask_prefix = "mask",image_as_gray = True,mask_as_gray = True):
-    image_name_arr = glob.glob(os.path.join(image_path,"%s*.png"%image_prefix))
-    image_arr = []
-    mask_arr = []
-    for index,item in enumerate(image_name_arr):
-        img = io.imread(item,as_gray = image_as_gray)
-        img = np.reshape(img,img.shape + (1,)) if image_as_gray else img
-        mask = io.imread(item.replace(image_path,mask_path).replace(image_prefix,mask_prefix),as_gray = mask_as_gray)
-        mask = np.reshape(mask,mask.shape + (1,)) if mask_as_gray else mask
-        img,mask = adjustData(img,mask,flag_multi_class,num_class)
-        image_arr.append(img)
-        mask_arr.append(mask)
-    image_arr = np.array(image_arr)
-    mask_arr = np.array(mask_arr)
-    return image_arr,mask_arr
-
-
-def labelVisualize(num_class,color_dict,img):
-    img = img[:,:,0] if len(img.shape) == 3 else img
-    img_out = np.zeros(img.shape + (3,))
-    for i in range(num_class):
-        img_out[img == i,:] = color_dict[i]
-    return img_out / 255
+    def load_test_data(self):
+        print('-' * 30)
+        print('load test images...')
+        print('-' * 30)
+        imgs_test = np.load(self.npy_path + "/imgs_test.npy")
+        imgs_test = imgs_test.astype('float32')
+        imgs_test /= 255
+        return imgs_test
 
 
 
-def saveResult(save_path,npyfile,flag_multi_class = False,num_class = 2):
-    for i,item in enumerate(npyfile):
-        img = labelVisualize(num_class,COLOR_DICT,item) if flag_multi_class else item[:,:,0]
-        io.imsave(os.path.join(save_path,"%d_predict.png"%i),img)
+if __name__ == "__main__":
+    mydata = dataProcess(512, 512)
+    mydata.create_train_data()
+    mydata.create_test_data()
