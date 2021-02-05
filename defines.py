@@ -1,7 +1,7 @@
 PARAM_ACTION = 1 							# 1 for training, 2 for testing
 
 PARAM_BATCHES = 2
-PARAM_N_EPOCHS = 10
+PARAM_N_EPOCHS = 3
 PARAM_N_TESTS = 100
 PARAM_EPOCH_STEPS = 500
 
