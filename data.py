@@ -144,3 +144,16 @@ def saveResult(save_path,npyfile,flag_multi_class = False,num_class = 2):
     for i,item in enumerate(npyfile):
         img = labelVisualize(num_class,COLOR_DICT,item) if flag_multi_class else item[:,:,0]
         io.imsave(os.path.join(save_path,"%d_predict.png"%i),img)
+        
+def add_noise(img, noise_typ = "gauss", mean = 10, var = 10):
+    if noise_typ == "gauss":
+        row,col,ch= img.shape
+        if ch == 2:
+            return img
+        else:
+            sigma = var**0.5
+            gauss = np.random.normal(mean,sigma,(row,col,ch))
+            gauss = gauss.reshape(row,col,ch)
+            img = img + gauss
+            np.clip(img, 0., 255.)
+            return img

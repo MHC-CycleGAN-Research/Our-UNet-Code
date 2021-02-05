@@ -1,4 +1,6 @@
-PARAM_ACTION = 2 							# 1 for training, 2 for testing
+from data import add_noise
+
+PARAM_ACTION = 1 							# 1 for training, 2 for testing
 
 PARAM_BATCHES = 2
 PARAM_N_EPOCHS = 10
@@ -18,13 +20,14 @@ PARAM_IMG_FOLDER = 'image'
 PARAM_MSK_FOLDER = 'label'
 PARAM_METRICS = 'loss'						# TODO: motitor more metrics... look up the options.
 
-PARAM_DATA_ARGS = dict(rotation_range = 0.2,      # TODO: improve the data augmentation
-                width_shift_range =		0.05,
-                height_shift_range =	0.05,
-                shear_range	= 			0.05,
-                zoom_range = 			0.05,
-                horizontal_flip = 		True,
-                fill_mode = 			'nearest')
+PARAM_DATA_ARGS = dict(rotation_range = 	0.0,		# 0.2 			# TODO: improve the data augmentation
+                width_shift_range =			0.0,		# 0.05	
+                height_shift_range =		0.0,		# 0.05
+                shear_range	= 				0.0,		# 0.05
+                zoom_range = 				0.0,		# 0.05
+                horizontal_flip = 			False,		# True
+                fill_mode = 				'nearest',	# 'nearest'
+                preprocessing_function =	add_noise)  # None
 
 
 
