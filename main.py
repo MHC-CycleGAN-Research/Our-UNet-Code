@@ -1,26 +1,52 @@
+from defines import *
 from model import *
 from data import *
 
-#os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+if __name__ == '__main__':
 
-n_test = 100
+	# step0: enable GPU version
+	# os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
-data_gen_args = dict(rotation_range=0.2,
-                    width_shift_range=0.05,
-                    height_shift_range=0.05,
-                    shear_range=0.05,
-                    zoom_range=0.05,
-                    horizontal_flip=True,
-                    fill_mode='nearest')
-myGene = trainGenerator(2,'data/endoscopic/train','image','label',data_gen_args,save_to_dir = None)
+	if PARAM_ACTION == 1:
+		# step1: create training set
+		myGene = trainGenerator(PARAM_BATCHES, 
+					PARAM_PATH_TRAIN, 
+					PARAM_IMG_FOLDER, 
+					PARAM_MSK_FOLDER, 
+					PARAM_DATA_ARGS, 
+					save_to_dir = PARAM_AUG_FOLDER)
 
-model = unet()
-model_checkpoint = ModelCheckpoint('unet_endoscopic.hdf5', monitor='loss',verbose=1, save_best_only=True)
-model.fit_generator(myGene,steps_per_epoch=500,epochs=10,callbacks=[model_checkpoint])
+		# setp2: set up unet model
+		model = unet()
 
-testGene = testGenerator("data/endoscopic/test", num_image = n_test, flag_multi_class = True, as_gray = False)
-results = model.predict_generator(testGene,n_test,verbose=1)
+		# step3: set up model checkpoint save path
+		model_checkpoint = ModelCheckpoint( PARAM_SAVED_MODEL, 
+						    monitor = PARAM_METRICS, 
+						    verbose = 1, 
+						    save_best_only = PARAM_SAVE_BEST_ONLY)
 
-np.save('./results/imgs_endoscopic.npy', results)
+		# step4: start training the model
+		model.fit_generator(myGene,	
+				    steps_per_epoch = PARAM_EPOCH_STEPS,
+				    epochs = PARAM_N_EPOCHS,
+				    callbacks = [model_checkpoint])
 
-saveResult("data/endoscopic/test",results)
+	elif PARAM_ACTION == 2:
+
+		# setp1: load trained model and weights
+		model = unet()
+		model.load_weights(PARAM_SAVED_MODEL)   
+
+		# step2: create testing set
+		testGeneX, testGeneY = testGenerator(PARAM_PATH_TEST,
+						     PARAM_IMG_FOLDER, 
+						     PARAM_MSK_FOLDER)
+
+		# step3: evaluate model performance
+		results = model.predict(testGeneX, PARAM_N_TESTS, verbose=1)
+
+		# step4: save results
+		np.save(PARAM_PATH_TEST_NPY, results)
+		saveResult(PARAM_PATH_TEST_RESULTS,results)
+
+		# TODO: visualization and analysis (Dice IoU)
