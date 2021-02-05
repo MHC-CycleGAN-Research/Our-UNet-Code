@@ -10,26 +10,26 @@ if __name__ == '__main__':
 	if PARAM_ACTION == 1:
 		# step1: create training set
 		myGene = trainGenerator(PARAM_BATCHES, 
-								PARAM_PATH_TRAIN, 
-								PARAM_IMG_FOLDER, 
-								PARAM_MSK_FOLDER, 
-								PARAM_DATA_ARGS, 
-								save_to_dir = PARAM_AUG_FOLDER)
+					PARAM_PATH_TRAIN, 
+					PARAM_IMG_FOLDER, 
+					PARAM_MSK_FOLDER, 
+					PARAM_DATA_ARGS, 
+					save_to_dir = PARAM_AUG_FOLDER)
 
 		# setp2: set up unet model
 		model = unet()
 
 		# step3: set up model checkpoint save path
 		model_checkpoint = ModelCheckpoint( PARAM_SAVED_MODEL, 
-											monitor = PARAM_METRICS, 
-											verbose = 1, 
-											save_best_only = PARAM_SAVE_BEST_ONLY)
+						    monitor = PARAM_METRICS, 
+						    verbose = 1, 
+						    save_best_only = PARAM_SAVE_BEST_ONLY)
 
 		# step4: start training the model
 		model.fit_generator(myGene,	
-							steps_per_epoch = PARAM_EPOCH_STEPS,
-							epochs = PARAM_N_EPOCHS,
-							callbacks = [model_checkpoint])
+				    steps_per_epoch = PARAM_EPOCH_STEPS,
+				    epochs = PARAM_N_EPOCHS,
+				    callbacks = [model_checkpoint])
 
 	elif PARAM_ACTION == 2:
 
@@ -39,8 +39,8 @@ if __name__ == '__main__':
 
 		# step2: create testing set
 		testGeneX, testGeneY = testGenerator(PARAM_PATH_TEST,
-								 			 PARAM_IMG_FOLDER, 
-								 			 PARAM_MSK_FOLDER)
+						     PARAM_IMG_FOLDER, 
+						     PARAM_MSK_FOLDER)
 
 		# step3: evaluate model performance
 		results = model.predict(testGeneX, PARAM_N_TESTS, verbose=1)
