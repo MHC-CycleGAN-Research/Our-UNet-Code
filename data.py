@@ -5,6 +5,7 @@ import os
 import glob
 import skimage.io as io
 import skimage.transform as trans
+from skimage import img_as_float
 
 Sky = [128,128,128]
 Building = [128,0,0]
@@ -43,9 +44,7 @@ def adjustData(img,mask,flag_multi_class,num_class):
         mask[mask <= 0.5] = 0
     return (img,mask)
 
-
-
-def trainGenerator(batch_size,train_path,image_folder,mask_folder,aug_dict,image_color_mode = "grayscale",
+def trainGenerator(batch_size,train_path,image_folder,mask_folder,aug_dict,image_color_mode = "rgb",
                     mask_color_mode = "grayscale",image_save_prefix  = "image",mask_save_prefix  = "mask",
                     flag_multi_class = False,num_class = 2,save_to_dir = None,target_size = (256,256),seed = 1):
     '''
@@ -82,14 +81,38 @@ def trainGenerator(batch_size,train_path,image_folder,mask_folder,aug_dict,image
 
 
 
-def testGenerator(test_path,num_image = 30,target_size = (256,256),flag_multi_class = False,as_gray = True):
-    for i in range(num_image):
-        img = io.imread(os.path.join(test_path,"%d.png"%i),as_gray = as_gray)
-        img = img / 255
-        img = trans.resize(img,target_size)
-        img = np.reshape(img,img.shape+(1,)) if (not flag_multi_class) else img
-        img = np.reshape(img,(1,)+img.shape)
-        yield img
+def testGenerator(test_path, image_folder, mask_folder,
+                  image_gray = False, mask_gray = True):
+    img_paths = list()
+    lbl_paths = list()
+    
+    # Recursively find all the image files from the path test_path
+    for img_path in glob.glob(test_path+"/"+image_folder+"/*"):
+        img_paths.append(img_path)
+    
+    # Recursively find all the image files from the path label_path
+    for lbl_path in glob.glob(test_path+"/"+mask_folder+"/*"):
+        lbl_paths.append(lbl_path)
+        
+    images = np.zeros((len(img_paths),256,256,3))
+    labels = np.zeros((len(lbl_paths),256,256,1))
+      
+    # Read and resize the images
+    # Get the encoded labels
+    for i, img_path in enumerate(img_paths):
+        # Takes as input path to image file and returns 
+        # resized 3 channel RGB image of as numpy array of size (256, 256, 3)
+        images[i] = np.array(io.imread(img_path, as_gray = image_gray)) / 255
+    for i, lbl_path in enumerate(lbl_paths):
+        labels[i] = np.array(io.imread(lbl_path, as_gray = mask_gray)).reshape((256,256,1)) / 255
+
+    errmsg1 = 'mismatched dimension: ' + str(len(img_paths))+' images' + str(len(lbl_paths))+' labels'
+    errmsg2 = 'no files detected'
+
+    assert len(img_paths) == len(lbl_paths), errmsg1
+    assert len(img_paths) > 0, errmsg2
+
+    return images,labels
 
 
 def geneTrainNpy(image_path,mask_path,flag_multi_class = False,num_class = 2,image_prefix = "image",mask_prefix = "mask",image_as_gray = True,mask_as_gray = True):
@@ -115,7 +138,6 @@ def labelVisualize(num_class,color_dict,img):
     for i in range(num_class):
         img_out[img == i,:] = color_dict[i]
     return img_out / 255
-
 
 
 def saveResult(save_path,npyfile,flag_multi_class = False,num_class = 2):
