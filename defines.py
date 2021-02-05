@@ -27,7 +27,7 @@ PARAM_DATA_ARGS = dict(rotation_range = 	190,		# 0.2 			# TODO: improve the data
                 zoom_range = 				0.0,		# 0.05
                 horizontal_flip = 			True,		# True
                 fill_mode = 				'nearest',	# 'nearest'
-                preprocessing_function =	add_noise,  # None
+                preprocessing_function =	None,  # None
                 rescale =                   1./255)     # None
 
 
