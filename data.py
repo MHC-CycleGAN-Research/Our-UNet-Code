@@ -5,7 +5,10 @@ import os
 import glob
 import skimage.io as io
 import skimage.transform as trans
-from skimage import img_as_float
+
+PARAM_NOISE_TYPE = "gauss"
+PARAM_NOISE_MEAN = .1
+PARAM_NOISE_VAR = .9
 
 Sky = [128,128,128]
 Building = [128,0,0]
@@ -54,6 +57,7 @@ def trainGenerator(batch_size,train_path,image_folder,mask_folder,aug_dict,image
     '''
     image_datagen = ImageDataGenerator(**aug_dict)
     mask_datagen = ImageDataGenerator(**aug_dict)
+    print(train_path, image_folder)
     image_generator = image_datagen.flow_from_directory(
         train_path,
         classes = [image_folder],
@@ -63,7 +67,8 @@ def trainGenerator(batch_size,train_path,image_folder,mask_folder,aug_dict,image
         batch_size = batch_size,
         save_to_dir = save_to_dir,
         save_prefix  = image_save_prefix,
-        seed = seed)
+        seed = seed,
+        shuffle = False)
     mask_generator = mask_datagen.flow_from_directory(
         train_path,
         classes = [mask_folder],
@@ -73,7 +78,8 @@ def trainGenerator(batch_size,train_path,image_folder,mask_folder,aug_dict,image
         batch_size = batch_size,
         save_to_dir = save_to_dir,
         save_prefix  = mask_save_prefix,
-        seed = seed)
+        seed = seed,
+        shuffle = False)
     train_generator = zip(image_generator, mask_generator)
     for (img,mask) in train_generator:
         img,mask = adjustData(img,mask,flag_multi_class,num_class)
@@ -116,7 +122,7 @@ def testGenerator(test_path, image_folder, mask_folder,
 
 
 def geneTrainNpy(image_path,mask_path,flag_multi_class = False,num_class = 2,image_prefix = "image",mask_prefix = "mask",image_as_gray = True,mask_as_gray = True):
-    image_name_arr = glob.glob(os.path.join(image_path,"%s*.png"%image_prefix))
+    image_name_arr = glob.glob(os.path.join(image_path,"%s*.tif"%image_prefix))
     image_arr = []
     mask_arr = []
     for index,item in enumerate(image_name_arr):
@@ -145,11 +151,10 @@ def saveResult(save_path,npyfile,flag_multi_class = False,num_class = 2):
         img = labelVisualize(num_class,COLOR_DICT,item) if flag_multi_class else item[:,:,0]
         io.imsave(os.path.join(save_path,"%d_predict.png"%i),img)
         
-def add_noise(img, noise_typ = "gauss", mean = 200, var = 10):
-    if noise_typ == "gauss":
+def add_noise(img, noise_type = PARAM_NOISE_TYPE, mean = PARAM_NOISE_MEAN, var = PARAM_NOISE_VAR):
+    if noise_type == "gauss":
         row,col,ch= img.shape
         if ch == 3:         # Adds noise to RGB image only
-            print("Add noise")
             sigma = var**0.5
             gauss = np.random.normal(mean,sigma,(row,col,ch))
             gauss = gauss.reshape(row,col,ch)
