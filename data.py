@@ -5,6 +5,9 @@ import os
 import glob
 import skimage.io as io
 import skimage.transform as trans
+import tensorflow as tf
+from keras import backend as K
+
 
 Sky = [128,128,128]
 Building = [128,0,0]
@@ -53,7 +56,6 @@ def trainGenerator(batch_size,train_path,image_folder,mask_folder,aug_dict,image
     '''
     image_datagen = ImageDataGenerator(**aug_dict)
     mask_datagen = ImageDataGenerator(**aug_dict)
-    print(train_path, image_folder)
     image_generator = image_datagen.flow_from_directory(
         train_path,
         classes = [image_folder],
@@ -144,3 +146,13 @@ def saveResult(save_path,npyfile,flag_multi_class = False,num_class = 2):
     for i,item in enumerate(npyfile):
         img = labelVisualize(num_class,COLOR_DICT,item) if flag_multi_class else item[:,:,0]
         io.imsave(os.path.join(save_path,"%d_predict.png"%i),img)
+        
+def IoU(true, pred):
+
+    intersection = true * pred
+
+    notTrue = 1 - true
+    union = true + (notTrue * pred)
+
+    return K.sum(intersection)/K.sum(union)
+

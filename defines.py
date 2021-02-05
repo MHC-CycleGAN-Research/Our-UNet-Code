@@ -1,3 +1,5 @@
+from data import IoU
+
 PARAM_ACTION = 1 							# 1 for training, 2 for testing
 
 PARAM_BATCHES = 2
@@ -16,7 +18,13 @@ PARAM_PATH_TEST_NPY = './data/endoscopic/test/imgs_endoscopic.npy'
 PARAM_SAVED_MODEL = 'unet_endoscopic.hdf5'    # TODO: log current system time as file name
 PARAM_IMG_FOLDER = 'image'
 PARAM_MSK_FOLDER = 'label'
-PARAM_METRICS = 'loss'						# TODO: motitor more metrics... look up the options.
+PARAM_MONITOR = 'loss'						# TODO: motitor more metrics... look up the options.
+
+PARAM_OPTIMIZER = 'adam'
+PARAM_LOSS = 'categorical_crossentropy'
+PARAM_METRICS = [IoU, 'mse', 'accuracy', 'binary_accuracy']
+
+METRIC_THRESH = 0.3 # Probability threshold to use for epoch-by-epoch IoU metric
 
 PARAM_DATA_ARGS = dict(rotation_range = 	190,		# 0.2 			# TODO: improve the data augmentation
                 width_shift_range =			0.0,		# 0.05	

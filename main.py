@@ -21,13 +21,15 @@ if __name__ == '__main__':
 
 		# step3: set up model checkpoint save path
 		model_checkpoint = ModelCheckpoint( PARAM_SAVED_MODEL, 
-						    monitor = PARAM_METRICS, 
+						    monitor = PARAM_MONITOR, 
 						    verbose = 1, 
 						    save_best_only = PARAM_SAVE_BEST_ONLY)
-
-		# step4: start training the model
-		model.fit_generator(myGene,	
-				    steps_per_epoch = PARAM_EPOCH_STEPS,
+					    
+        # step?: set up metrics to measure
+		model.compile(optimizer = PARAM_OPTIMIZER, loss = PARAM_LOSS, metrics = PARAM_METRICS)
+        # step4: start training the model
+		model.fit_generator(myGene,
+        			steps_per_epoch = PARAM_EPOCH_STEPS,
 				    epochs = PARAM_N_EPOCHS,
 				    callbacks = [model_checkpoint])
 
