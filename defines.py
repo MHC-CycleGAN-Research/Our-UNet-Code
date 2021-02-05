@@ -1,5 +1,3 @@
-from data import add_noise
-
 PARAM_ACTION = 1 							# 1 for training, 2 for testing
 
 PARAM_BATCHES = 2
@@ -27,7 +25,6 @@ PARAM_DATA_ARGS = dict(rotation_range = 	190,		# 0.2 			# TODO: improve the data
                 zoom_range = 				0.0,		# 0.05
                 horizontal_flip = 			True,		# True
                 fill_mode = 				'nearest',	# 'nearest'
-                preprocessing_function =	None,  # None
                 rescale =                   1./255)     # None
 
 

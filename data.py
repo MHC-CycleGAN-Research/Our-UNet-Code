@@ -6,10 +6,6 @@ import glob
 import skimage.io as io
 import skimage.transform as trans
 
-PARAM_NOISE_TYPE = "gauss"
-PARAM_NOISE_MEAN = .1
-PARAM_NOISE_VAR = .9
-
 Sky = [128,128,128]
 Building = [128,0,0]
 Pole = [192,192,128]
@@ -148,14 +144,3 @@ def saveResult(save_path,npyfile,flag_multi_class = False,num_class = 2):
     for i,item in enumerate(npyfile):
         img = labelVisualize(num_class,COLOR_DICT,item) if flag_multi_class else item[:,:,0]
         io.imsave(os.path.join(save_path,"%d_predict.png"%i),img)
-        
-def add_noise(img, noise_type = PARAM_NOISE_TYPE, mean = PARAM_NOISE_MEAN, var = PARAM_NOISE_VAR):
-    if noise_type == "gauss":
-        row,col,ch= img.shape
-        if ch == 3:         # Adds noise to RGB image only
-            sigma = var**0.5
-            gauss = np.random.normal(mean,sigma,(row,col,ch))
-            gauss = gauss.reshape(row,col,ch)
-            img = img + gauss
-            np.clip(img, 0., 255.)
-        return img
