@@ -1,6 +1,46 @@
 from defines import *
 from model import *
 from data import *
+from datetime import datetime
+
+import cv2
+import numpy as np
+import glob
+import os
+
+def mergeIm():
+	list = os.listdir(os.path.join(PARAM_PATH_TEST,PARAM_IMG_FOLDER))
+	number_files = len(list)
+	
+	ext = ".png"
+	
+	# Paths for test, result, label images
+	path_test = os.path.join(os.path.join(PARAM_PATH_TEST,PARAM_IMG_FOLDER), "*" + ext)
+	path_result = os.path.join(PARAM_PATH_TEST_RESULTS, "*" + ext)
+	path_label = os.path.join(os.path.join(PARAM_PATH_TEST,PARAM_MSK_FOLDER), "*" + ext)
+	
+	# Information of images
+	images_test = [cv2.imread(img) for img in glob.glob(path_test)]
+	images_result = [cv2.imread(img) for img in glob.glob(path_result)]
+	images_label = [cv2.imread(img) for img in glob.glob(path_label)]
+	
+	h,w,d = images_test[0].shape
+	
+	height = h * number_files
+	width = w * 3
+	output = np.zeros((height,width,3))
+	
+	# current row
+	n = 0
+	for i in number_files:
+		# test image | result image | ground truth
+    		output[n:n+h,0:w] = images_test[i]
+		output[n:n+h,w:w*2] = images_result[i]
+		output[n:n+h,w*2:w*3] = images_label[i]
+		n += h
+	
+	cv2.imwrite("output.png", output)
+	
 
 if __name__ == '__main__':
 
@@ -15,6 +55,9 @@ if __name__ == '__main__':
 					PARAM_MSK_FOLDER, 
 					PARAM_DATA_ARGS, 
 					save_to_dir = PARAM_AUG_FOLDER)
+		
+		hdf5 = '.hdf5'
+		PARAM_SAVED_MODEL = datetime.now().strftime("%Y%m%d-%H%M%S") + hdf5
 
 		# setp2: set up unet model
 		model = unet()
@@ -50,3 +93,4 @@ if __name__ == '__main__':
 		saveResult(PARAM_PATH_TEST_RESULTS,results)
 
 		# TODO: visualization and analysis (Dice IoU)
+		mergeIm()
