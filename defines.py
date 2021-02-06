@@ -1,5 +1,3 @@
-#from datetime import datetime
-
 PARAM_ACTION = 2 							# 1 for training, 2 for testing
 
 PARAM_BATCHES = 2
@@ -16,9 +14,6 @@ PARAM_PATH_TEST_RESULTS = './data/endoscopic/test/predict'
 PARAM_PATH_TEST_NPY = './data/endoscopic/test/imgs_endoscopic.npy'
 
 PARAM_SAVED_MODEL = 'unet_endoscopic.hdf5'    # TODO: log current system time as file name
-
-#hdf5 = '.hdf5'
-#PARAM_SAVED_MODEL = datetime.now().strftime("%Y%m%d-%H%M%S") + hdf5
 
 PARAM_IMG_FOLDER = 'image'
 PARAM_MSK_FOLDER = 'label'
