@@ -1,6 +1,7 @@
 from defines import *
 from model import *
 from data import *
+	
 
 if __name__ == '__main__':
 
@@ -15,6 +16,7 @@ if __name__ == '__main__':
 					PARAM_MSK_FOLDER, 
 					PARAM_DATA_ARGS, 
 					save_to_dir = PARAM_AUG_FOLDER)
+		
 
 		# setp2: set up unet model
 		model = unet()
@@ -31,7 +33,9 @@ if __name__ == '__main__':
 				    epochs = PARAM_N_EPOCHS,
 				    callbacks = [model_checkpoint])
 
-	elif PARAM_ACTION == 2:
+		PARAM_ACTION = 2
+
+	if PARAM_ACTION == 2:
 
 		# setp1: load trained model and weights
 		model = unet()
@@ -49,4 +53,6 @@ if __name__ == '__main__':
 		np.save(PARAM_PATH_TEST_NPY, results)
 		saveResult(PARAM_PATH_TEST_RESULTS,results)
 
-		# TODO: visualization and analysis (Dice IoU)
+		# step5: visualization and dice/IoU?
+		mergeIm(PARAM_PATH_TEST, PARAM_IMG_FOLDER, PARAM_MSK_FOLDER, 
+				PARAM_PATH_TEST_RESULTS, PARAM_PATH_TEST_ALL_IMG)

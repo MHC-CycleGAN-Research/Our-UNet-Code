@@ -7,6 +7,14 @@ import skimage.io as io
 import skimage.transform as trans
 from skimage import img_as_float
 
+import sys
+rospath = '/opt/ros/kinetic/lib/python2.7/dist-packages'
+if str(sys.path).find(rospath) != -1:
+    sys.path.remove(rospath) # in order to import cv2 under python3
+    print('ROS path temporarily removed.')
+import cv2
+
+
 Sky = [128,128,128]
 Building = [128,0,0]
 Pole = [192,192,128]
@@ -52,6 +60,7 @@ def trainGenerator(batch_size,train_path,image_folder,mask_folder,aug_dict,image
     use the same seed for image_datagen and mask_datagen to ensure the transformation for image and mask is the same
     if you want to visualize the results of generator, set save_to_dir = "your path"
     '''
+    os.mkdir(save_to_dir)
     image_datagen = ImageDataGenerator(**aug_dict)
     mask_datagen = ImageDataGenerator(**aug_dict)
     image_generator = image_datagen.flow_from_directory(
@@ -141,6 +150,40 @@ def labelVisualize(num_class,color_dict,img):
 
 
 def saveResult(save_path,npyfile,flag_multi_class = False,num_class = 2):
+    os.mkdir(save_path)
     for i,item in enumerate(npyfile):
         img = labelVisualize(num_class,COLOR_DICT,item) if flag_multi_class else item[:,:,0]
         io.imsave(os.path.join(save_path,"%d_predict.png"%i),img)
+
+
+def mergeIm(test_path, img_folder, mask_folder, results_path, save_path):
+    list = os.listdir(os.path.join(test_path,img_folder))
+    number_files = len(list)
+    
+    # Paths for test, result, label images
+    path_test = os.path.join(os.path.join(test_path,img_folder), "*.tif")
+    path_label = os.path.join(os.path.join(test_path, mask_folder), "*.tif")
+    path_result = os.path.join(results_path, "*.png")
+    
+    
+    # Information of images
+    images_test = [cv2.imread(img) for img in glob.glob(path_test)]
+    images_result = [cv2.imread(img) for img in glob.glob(path_result)]
+    images_label = [cv2.imread(img) for img in glob.glob(path_label)]
+    
+    h,w,d = images_test[0].shape
+    
+    height = h * number_files
+    width = w * 3
+    output = np.zeros((height,width,3))
+    
+    # current row
+    n = 0
+    for i in range(number_files):
+        # test image | result image | ground truth
+        output[n:n+h,0:w] = images_test[i]
+        output[n:n+h,w:w*2] = images_result[i]
+        output[n:n+h,w*2:w*3] = images_label[i]
+        n += h
+    
+    cv2.imwrite(os.path.join(save_path), output)
