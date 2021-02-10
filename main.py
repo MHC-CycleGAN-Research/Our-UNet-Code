@@ -1,9 +1,24 @@
 from defines import *
 from model import *
 from data import *
-	
+import sys
+
 
 if __name__ == '__main__':
+
+	# step0: load dataset choice parameter
+	if len(sys.argv) > 1:
+
+		PARAM_PATH_TRAIN = PARAM_PATH_TRAIN + str(sys.argv[1])
+		PARAM_AUG_FOLDER = PARAM_PATH_TRAIN + PARAM_AUG_FOLDER
+
+		print("RUN_TIME_ARGUEMENT = "+str(sys.argv[1]))
+		print("PARAM_PATH_TRAIN = "+PARAM_PATH_TRAIN)
+		print("PARAM_AUG_FOLDER = "+PARAM_AUG_FOLDER)
+
+	else:
+
+		input("No RUN_TIME_ARGUEMENT detected.. something's wrong?")
 
 	# step0: enable GPU version
 	# os.environ["CUDA_VISIBLE_DEVICES"] = "0"

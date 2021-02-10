@@ -11,7 +11,7 @@ PARAM_SAVE_BEST_ONLY = True
 
 PARAM_SYSTEM_TIME = datetime.now().strftime("%Y%m%d_%H%M%S")
 PARAM_PATH_TRAIN = './data/endoscopic/train'
-PARAM_AUG_FOLDER = './data/endoscopic/train/aug_' + PARAM_SYSTEM_TIME
+PARAM_AUG_FOLDER = '/aug_' + PARAM_SYSTEM_TIME
 PARAM_PATH_TEST =  './data/endoscopic/test'
 PARAM_PATH_TEST_RESULTS = './data/endoscopic/test/predict_' + PARAM_SYSTEM_TIME
 PARAM_PATH_TEST_NPY = './data/endoscopic/test/predict_' + PARAM_SYSTEM_TIME + '.npy'
