@@ -1,82 +1,153 @@
-# Implementation of deep learning framework -- Unet, using Keras
+# UNet++: Official Keras Implementation
 
-The architecture was inspired by [U-Net: Convolutional Networks for Biomedical Image Segmentation](http://lmb.informatik.uni-freiburg.de/people/ronneber/u-net/).
+This repository provides the official **Keras** implementation of UNet++ in the following papers:
 
----
+**UNet++: Redesigning Skip Connections to Exploit Multiscale Features in Image Segmentation** <br/>
+[Zongwei Zhou](https://www.zongweiz.com), [Md Mahfuzur Rahman Siddiquee](https://github.com/mahfuzmohammad), [Nima Tajbakhsh](https://www.linkedin.com/in/nima-tajbakhsh-b5454376/), and [Jianming Liang](https://chs.asu.edu/jianming-liang) <br/>
+Arizona State University <br/>
+IEEE Transactions on Medical Imaging ([TMI](https://ieee-tmi.org/)) <br/>
+[paper](https://arxiv.org/abs/1912.05074) | [code](https://github.com/MrGiovanni/Nested-UNet)
 
-## Overview
-
-### Data
-
-The original dataset is from [isbi challenge](http://brainiac2.mit.edu/isbi_challenge/), and I've downloaded it and done the pre-processing.
-
-You can find it in folder data/membrane.
-
-### Data augmentation
-
-The data for training contains 30 512*512 images, which are far not enough to feed a deep learning neural network. I use a module called ImageDataGenerator in keras.preprocessing.image to do data augmentation.
-
-See dataPrepare.ipynb and data.py for detail.
+**UNet++: A Nested U-Net Architecture for Medical Image Segmentation** <br/>
+[Zongwei Zhou](https://www.zongweiz.com), [Md Mahfuzur Rahman Siddiquee](https://github.com/mahfuzmohammad), [Nima Tajbakhsh](https://www.linkedin.com/in/nima-tajbakhsh-b5454376/), and [Jianming Liang](https://chs.asu.edu/jianming-liang) <br/>
+Arizona State University <br/>
+Deep Learning in Medical Image Analysis ([DLMIA](https://cs.adelaide.edu.au/~dlmia4/)) 2018. **(Oral)** <br/>
+[paper](https://arxiv.org/abs/1807.10165) | [code](https://github.com/MrGiovanni/Nested-UNet) | [slides](https://docs.wixstatic.com/ugd/deaea1_1d1e512ebedc4facbb242d7a0f2b7a0b.pdf) | [poster](https://docs.wixstatic.com/ugd/deaea1_993c14ef78f844c88a0dae9d93e4857c.pdf) | [blog](https://zhuanlan.zhihu.com/p/44958351)
 
 
-### Model
+## What is in this repository
 
-![img/u-net-architecture.png](img/u-net-architecture.png)
+### 1. Available architectures
+ - [U-Net](https://arxiv.org/abs/1505.04597)
+ - [DLA](http://openaccess.thecvf.com/content_cvpr_2018/papers/Yu_Deep_Layer_Aggregation_CVPR_2018_paper.pdf) (UNet+)
+ - **[UNet++](https://link.springer.com/chapter/10.1007/978-3-030-00889-5_1)**
+ - [FPN](http://presentations.cocodataset.org/COCO17-Stuff-FAIR.pdf)
+ - [Linknet](https://arxiv.org/abs/1707.03718)
+ - [PSPNet](https://arxiv.org/abs/1612.01105)
+ 
+### 2. Available backbones
+| Backbone model      |Name| Weights    |
+|---------------------|:--:|:------------:|
+| VGG16               |`vgg16`| `imagenet` |
+| VGG19               |`vgg19`| `imagenet` |
+| ResNet18            |`resnet18`| `imagenet` |
+| ResNet34            |`resnet34`| `imagenet` |
+| ResNet50            |`resnet50`| `imagenet`<br>`imagenet11k-places365ch` |
+| ResNet101           |`resnet101`| `imagenet` |
+| ResNet152           |`resnet152`| `imagenet`<br>`imagenet11k` |
+| ResNeXt50           |`resnext50`| `imagenet` |
+| ResNeXt101          |`resnext101`| `imagenet` |
+| DenseNet121         |`densenet121`| `imagenet` |
+| DenseNet169         |`densenet169`| `imagenet` |
+| DenseNet201         |`densenet201`| `imagenet` |
+| Inception V3        |`inceptionv3`| `imagenet` |
+| Inception ResNet V2 |`inceptionresnetv2`| `imagenet` |
 
-This deep neural network is implemented with Keras functional API, which makes it extremely easy to experiment with different interesting architectures.
+## How to use UNet++
 
-Output from the network is a 512*512 which represents mask that should be learned. Sigmoid activation function
-makes sure that mask pixels are in \[0, 1\] range.
+### 1. Requirements
+Python 3.x, Keras 2.2.2, Tensorflow 1.4.1 and other common packages listed in `requirements.txt`.
 
-### Training
+### 2. Installation
 
-The model is trained for 5 epochs.
+```bash
+git clone https://github.com/MrGiovanni/UNetPlusPlus.git
+cd UNetPlusPlus/keras
+pip install -r requirements.txt
+git submodule update --init --recursive
+```
 
-After 5 epochs, calculated accuracy is about 0.97.
+### 3. Running the scripts
 
-Loss function for the training is basically just a binary crossentropy.
+#### Application 1: [Data Science Bowl 2018](https://www.kaggle.com/c/data-science-bowl-2018)
+```bash
+CUDA_VISIBLE_DEVICES=0 python DSB2018_application.py --run 1 \
+                                                     --arch Xnet \
+                                                     --backbone vgg16 \
+                                                     --init random \
+                                                     --decoder transpose \
+                                                     --input_rows 96 \
+                                                     --input_cols 96 \
+                                                     --input_deps 3 \
+                                                     --nb_class 1 \
+                                                     --batch_size 2048 \
+                                                     --weights None \
+                                                     --verbose 1
+```
+#### Application 2: [Liver Tumor Segmentation Challenge (LiTS)](https://competitions.codalab.org/competitions/17094)
 
+#### Application 3: [Polyp Segmentation (ASU-Mayo)](https://polyp.grand-challenge.org/databases/)
 
----
+#### Application 4: [Lung Image Database Consortium image collection (LIDC-IDRI)](https://wiki.cancerimagingarchive.net/display/Public/LIDC-IDRI)
 
-## How to use
+#### Application 5: [Multiparametric Brain Tumor Segmentation (BRATS 2013)](https://www.smir.ch/BRATS/Start2013)
+```bash
+CUDA_VISIBLE_DEVICES=0 python BRATS2013_application.py --run 1 \
+                                                     --arch Xnet \
+                                                     --backbone vgg16 \
+                                                     --init random \
+                                                     --decoder transpose \
+                                                     --input_rows 256 \
+                                                     --input_cols 256 \
+                                                     --input_deps 3 \
+                                                     --nb_class 1 \
+                                                     --batch_size 2048 \
+                                                     --weights None \
+                                                     --verbose 1
+```
 
-### Dependencies
+## Code examples for your own data
 
-This tutorial depends on the following libraries:
+Train a UNet++ structure (`Xnet` in the code):  
+```python
+from segmentation_models import Unet, Nestnet, Xnet
 
-* Tensorflow
-* Keras >= 1.0
+# prepare data
+x, y = ... # range in [0,1], the network expects input channels of 3
 
-Also, this code should be compatible with Python versions 2.7-3.5.
+# prepare model
+model = Xnet(backbone_name='resnet50', encoder_weights='imagenet', decoder_block_type='transpose') # build UNet++
+# model = Unet(backbone_name='resnet50', encoder_weights='imagenet', decoder_block_type='transpose') # build U-Net
+# model = NestNet(backbone_name='resnet50', encoder_weights='imagenet', decoder_block_type='transpose') # build DLA
 
-### Run main.py
+model.compile('Adam', 'binary_crossentropy', ['binary_accuracy'])
 
-You will see the predicted results of test image in data/membrane/test
+# train model
+model.fit(x, y)
+```
 
-### Or follow notebook trainUnet
+## To do
+- [x] Add VGG backbone for UNet++
+- [x] Add ResNet backbone for UNet++
+- [x] Add ResNeXt backbone for UNet++
+- [ ] Add DenseNet backbone for UNet++
+- [ ] Add Inception backbone for UNet++
+- [ ] Add [Tiramisu](https://arxiv.org/pdf/1611.09326.pdf]) and Tiramisu++
+- [ ] Add FPN++
+- [ ] Add Linknet++
+- [ ] Add PSPNet++
 
+## Citation
+If you use UNet++ for your research, please cite our papers:
+```
+@article{zhou2019unetplusplus,
+  title={UNet++: Redesigning Skip Connections to Exploit Multiscale Features in Image Segmentation},
+  author={Zhou, Zongwei and Siddiquee, Md Mahfuzur Rahman and Tajbakhsh, Nima and Liang, Jianming},
+  journal={IEEE Transactions on Medical Imaging},
+  year={2019},
+  publisher={IEEE}
+}
 
+@incollection{zhou2018unetplusplus,
+  title={Unet++: A Nested U-Net Architecture for Medical Image Segmentation},
+  author={Zhou, Zongwei and Siddiquee, Md Mahfuzur Rahman and Tajbakhsh, Nima and Liang, Jianming},
+  booktitle={Deep Learning in Medical Image Analysis and Multimodal Learning for Clinical Decision Support},
+  pages={3--11},
+  year={2018},
+  publisher={Springer}
+}
+```
 
-### Results
+## Acknowledgments
 
-Use the trained model to do segmentation on test images, the result is statisfactory.
-
-![img/0test.png](img/0test.png)
-
-![img/0label.png](img/0label.png)
-
-
-## About Keras
-
-Keras is a minimalist, highly modular neural networks library, written in Python and capable of running on top of either TensorFlow or Theano. It was developed with a focus on enabling fast experimentation. Being able to go from idea to result with the least possible delay is key to doing good research.
-
-Use Keras if you need a deep learning library that:
-
-allows for easy and fast prototyping (through total modularity, minimalism, and extensibility).
-supports both convolutional networks and recurrent networks, as well as combinations of the two.
-supports arbitrary connectivity schemes (including multi-input and multi-output training).
-runs seamlessly on CPU and GPU.
-Read the documentation [Keras.io](http://keras.io/)
-
-Keras is compatible with: Python 2.7-3.5.
+This repository has been built upon [qubvel/segmentation_models](https://github.com/qubvel/segmentation_models). We appreciate the effort of Pavel Yakubovskiy for providing well-organized segmentation models to the community. This research has been supported partially by NIH under Award Number R01HL128785, by ASU and Mayo Clinic through a Seed Grant and an Innovation Grant. The content is solely the responsibility of the authors and does not necessarily represent the official views of NIH. This is a patent-pending technology.
