@@ -1,54 +1,33 @@
-from defines import *
 from model import *
 from data import *
+from tensorflow.keras import metrics
 
-if __name__ == '__main__':
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
-	# step0: enable GPU version
-	# os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+n_test = 100
 
-	if PARAM_ACTION == 1:
-		# step1: create training set
-		myGene = trainGenerator(PARAM_BATCHES, 
-					PARAM_PATH_TRAIN, 
-					PARAM_IMG_FOLDER, 
-					PARAM_MSK_FOLDER, 
-					PARAM_DATA_ARGS, 
-					save_to_dir = PARAM_AUG_FOLDER)
+data_gen_args = dict(rotation_range=0.2,
+                    width_shift_range=0.05,
+                    height_shift_range=0.05,
+                    shear_range=0.05,
+                    zoom_range=0.05,
+                    horizontal_flip=True,
+                    fill_mode='nearest',
+                    )
+                    
+myGene = trainGenerator(2,'data/endoscopic/train','image','label',data_gen_args,save_to_dir = 'data/endoscopic/train/aug')
+model = unet()
 
-		# setp2: set up unet model
-		model = unet()
+model.compile(optimizer = Adam(lr = 1e-4), loss = dice_coef_loss, metrics = ['accuracy', dice_coef_loss])
 
-		# step3: set up model checkpoint save path
-		model_checkpoint = ModelCheckpoint( PARAM_SAVED_MODEL, 
-						    monitor = PARAM_MONITOR, 
-						    verbose = 1, 
-						    save_best_only = PARAM_SAVE_BEST_ONLY)
-					    
-        # step?: set up metrics to measure
-		model.compile(optimizer = PARAM_OPTIMIZER, loss = PARAM_LOSS, metrics = PARAM_METRICS)
-        # step4: start training the model
-		model.fit_generator(myGene,
-        			steps_per_epoch = PARAM_EPOCH_STEPS,
-				    epochs = PARAM_N_EPOCHS,
-				    callbacks = [model_checkpoint])
+model_checkpoint = ModelCheckpoint('unet_endoscopic.hdf5', monitor = 'loss', verbose=1, save_best_only=True)
 
-	elif PARAM_ACTION == 2:
+model.fit_generator(myGene,steps_per_epoch=150,epochs=1,callbacks=[model_checkpoint])
 
-		# setp1: load trained model and weights
-		model = unet()
-		model.load_weights(PARAM_SAVED_MODEL)   
+testGene = testGenerator("data/endoscopic/test/image", num_image = n_test, flag_multi_class = True, as_gray = False)
+results = model.predict_generator(testGene,n_test,verbose=1)
 
-		# step2: create testing set
-		testGeneX, testGeneY = testGenerator(PARAM_PATH_TEST,
-						     PARAM_IMG_FOLDER, 
-						     PARAM_MSK_FOLDER)
+np.save('./results/imgs_endoscopic_polar.npy', results)
 
-		# step3: evaluate model performance
-		results = model.predict(testGeneX, PARAM_N_TESTS, verbose=1)
+saveResult("data/endoscopic/test/predict",results)
 
-		# step4: save results
-		np.save(PARAM_PATH_TEST_NPY, results)
-		saveResult(PARAM_PATH_TEST_RESULTS,results)
-
-		# TODO: visualization and analysis (Dice IoU)
