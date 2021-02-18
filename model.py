@@ -58,7 +58,7 @@ def unet(pretrained_weights = None,input_size = (256,256,3)):
     conv10 = Conv2D(1, 1, activation = 'sigmoid')(conv9)
 
     model = Model(inputer, conv10)
-    
+    model.compile(optimizer = Adam(lr = 1e-4, beta_1 = 0.4, beta_2 = 0.8), loss = dice_coef_loss, metrics = ['accuracy', dice_coef_loss])
     # model.summary()
 
     if(pretrained_weights):
