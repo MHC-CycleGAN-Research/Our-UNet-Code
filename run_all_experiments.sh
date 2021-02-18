@@ -1,7 +1,7 @@
 #!/bin/bash
 
-for ((i=1; i<=2; i++))
+for ((i=0; i<=3; i++))
 do
-    python main.py "$i"
+    python main.py "2" "$i"
 done
 

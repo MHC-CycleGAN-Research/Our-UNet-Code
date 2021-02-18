@@ -5,6 +5,9 @@ PARAM_BATCHES = 2
 PARAM_N_EPOCHS = 50
 PARAM_N_TESTS = 100
 PARAM_EPOCH_STEPS = 100
+PARAM_BETA1 = [0.2, 0.4, 0.6, 0.4]
+PARAM_BETA2 = [0.8, 0.4, 0.8, 0.999]
+
 PARAM_SAVE_BEST_ONLY = True
 PARAM_SYSTEM_TIME = datetime.now().strftime("%Y%m%d_%H%M%S")
 PARAM_PATH_TRAIN_C = './data/endoscopic/cartesian/train'

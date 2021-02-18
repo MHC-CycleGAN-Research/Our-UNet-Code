@@ -9,13 +9,17 @@ if __name__ == '__main__':
 	# os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 	if len(sys.argv) > 1:
-
+		
 		PARAM_CP = int(sys.argv[1])
 
+		PARAM_BETA_TEST_NUM = int(sys.argv[2])
+		assert 	PARAM_BETA_TEST_NUM >=0 and PARAM_BETA_TEST_NUM<4
+
+		
 		if PARAM_CP == 1:
-			print("RUN_TIME_ARGUEMENT = (cartesian) "+str(sys.argv[1]))
+			print("RUN_TIME_ARGUEMENT = (cartesian) "+str(sys.argv[1])+" beta value test "+str(sys.argv[2]))
 		elif PARAM_CP == 2:
-			print("RUN_TIME_ARGUEMENT = (polar) "+str(sys.argv[1]))
+			print("RUN_TIME_ARGUEMENT = (polar) "+str(sys.argv[1])+" beta value test "+str(sys.argv[2]))
 		else:
 			input("Invalid RUN_TIME_ARGUEMENT detected. you received: "+str(sys.argv[1]))
 	else:
@@ -43,7 +47,7 @@ if __name__ == '__main__':
 						save_to_dir = PARAM_AUG_FOLDER_P)
 
 		# setp2: set up unet model
-		model = unet()
+		model = unet(PARAM_BETA1[PARAM_BETA_TEST_NUM], PARAM_BETA2[PARAM_BETA_TEST_NUM])
 
 		# step3: set up model checkpoint save path
 		model_checkpoint = ModelCheckpoint( PARAM_SAVED_MODEL, 
@@ -60,7 +64,7 @@ if __name__ == '__main__':
 
 	if PARAM_ACTION == 2:
 		# setp1: load trained model and weights
-		model = unet()
+		model = unet(PARAM_BETA1[PARAM_BETA_TEST_NUM], PARAM_BETA2[PARAM_BETA_TEST_NUM])
 		model.load_weights(PARAM_SAVED_MODEL) 
 
 		# step2: create testing set
