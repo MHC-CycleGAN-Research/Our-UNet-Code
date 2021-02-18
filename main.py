@@ -18,7 +18,7 @@ data_gen_args = dict(rotation_range=0.2,
 myGene = trainGenerator(2,'data/endoscopic/train','image','label',data_gen_args,save_to_dir = 'data/endoscopic/train/aug')
 model = unet()
 
-model.compile(optimizer = Adam(lr = 1e-4), loss = dice_coef_loss, metrics = ['accuracy', dice_coef_loss])
+# model.compile(optimizer = Adam(lr = 1e-4), loss = dice_coef_loss, metrics = ['accuracy', dice_coef_loss])
 
 model_checkpoint = ModelCheckpoint('unet_endoscopic.hdf5', monitor = 'loss', verbose=1, save_best_only=True)
 
