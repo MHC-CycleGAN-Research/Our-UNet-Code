@@ -96,11 +96,19 @@ def testGenerator(test_path, image_folder, mask_folder,
     lbl_paths = list()
     
     # Recursively find all the image files from the path test_path
-    for img_path in glob.glob(test_path+"/"+image_folder+"/*"):
+    img_dir = os.listdir(test_path+"/"+image_folder)
+    img_dir = [int(i.split('.', 1)[0]) for i in img_dir]
+    img_files = sorted(img_dir)
+    for i in img_files:
+        img_path = test_path+"/"+image_folder+"/"+str(i)+".tif"
         img_paths.append(img_path)
     
     # Recursively find all the image files from the path label_path
-    for lbl_path in glob.glob(test_path+"/"+mask_folder+"/*"):
+    lbl_dir = os.listdir(test_path+"/"+mask_folder)
+    lbl_dir = [int(i.split('.', 1)[0]) for i in lbl_dir]
+    lbl_files = sorted(lbl_dir)
+    for i in lbl_files:
+        lbl_path = test_path+"/"+mask_folder+"/"+str(i)+".tif"
         lbl_paths.append(lbl_path)
         
     images = np.zeros((len(img_paths),256,256,3))
